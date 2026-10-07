@@ -23,6 +23,7 @@ const navigationItems = [
 export default function Sidebar() {
   const pathname = usePathname();
 
+
   const handleLogout = () => {
     // Placeholder aksi logout
     console.log("Logout clicked");

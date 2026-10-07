@@ -42,7 +42,7 @@ export default function DashboardPage() {
 				</p>
 
 				<Link
-					href="/ruangan"
+					href="/kelola"
 					className="mt-10 inline-flex h-[45px] w-[200px] items-center justify-center rounded-xl bg-[#00629F] text-lg font-medium shadow-lg transition-colors hover:bg-[#0A74BA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
 				>
 					Mulai Kelola
