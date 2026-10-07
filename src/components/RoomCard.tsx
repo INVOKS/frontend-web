@@ -11,22 +11,22 @@ export default function RoomCard({
   name,
   capacityMin,
   capacityMax,
-  imageUrl = "/images/ruangan.jpg", // TODO: ganti dengan aset dari Figma jika diperlukan
+  imageUrl = "/images/ruangan.jpg",
 }: RoomCardProps) {
   return (
-    <div className="flex h-[195px] w-full flex-col items-center justify-center gap-3 rounded-sm bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
-      <div className="relative h-[73px] w-[80px] shrink-0 overflow-hidden rounded-sm bg-gray-100">
+    <div className="flex h-[225px] w-full flex-col items-center justify-center gap-3.5 rounded-md bg-white p-5 shadow-[0_2px_10px_rgba(0,0,0,0.12)] transition-all hover:shadow-[0_4px_16px_rgba(0,0,0,0.16)]">
+      <div className="relative h-[92px] w-[105px] shrink-0 overflow-hidden rounded-sm bg-gray-100 shadow-xs">
         <Image
           src={imageUrl}
           alt={name}
-          width={80}
-          height={73}
-          className="h-[73px] w-[80px] object-cover"
+          width={105}
+          height={92}
+          className="size-full object-cover"
         />
       </div>
       <div className="text-center">
-        <h3 className="text-sm font-medium text-black">{name}</h3>
-        <p className="mt-1 text-[10px] text-black">
+        <h3 className="text-base font-semibold text-black">{name}</h3>
+        <p className="mt-1 text-xs text-neutral-700">
           Kapasitas {capacityMin} - {capacityMax} orang
         </p>
       </div>

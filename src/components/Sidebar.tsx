@@ -37,13 +37,12 @@ export default function Sidebar() {
           href="/dashboard"
           className="flex items-center gap-3 px-6 mb-8 focus:outline-none"
         >
-          {/* TODO: ganti dengan aset dari Figma jika logo berubah */}
           <div className="relative size-10 shrink-0 flex items-center justify-center">
             <Image
-              src="/images/logo.svg"
+              src="/images/logoinvoks.png"
               alt="Logo INVOKS"
-              width={38}
-              height={38}
+              width={40}
+              height={40}
               className="object-contain"
               priority
             />

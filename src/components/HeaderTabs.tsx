@@ -6,9 +6,15 @@ type HeaderTabsProps = {
   tabs: string[];
   active: string;
   onChange: (tab: string) => void;
+  avatarUrl?: string;
 };
 
-export default function HeaderTabs({ tabs, active, onChange }: HeaderTabsProps) {
+export default function HeaderTabs({
+  tabs,
+  active,
+  onChange,
+  avatarUrl = "/images/deddydieng.png",
+}: HeaderTabsProps) {
   return (
     <header className="h-[84px] bg-navy flex items-center justify-between px-8 select-none">
       {/* Tabs Gedung */}
@@ -20,14 +26,18 @@ export default function HeaderTabs({ tabs, active, onChange }: HeaderTabsProps) 
               key={tab}
               type="button"
               onClick={() => onChange(tab)}
-              className={`relative h-full flex items-center px-5 text-lg font-bold uppercase transition-colors focus:outline-none ${
-                isActive ? "text-white" : "text-white/80 hover:text-white"
+              className={`relative h-full flex items-center px-5 text-lg font-bold uppercase transition-all duration-200 focus:outline-none cursor-pointer ${
+                isActive ? "text-white" : "text-white/70 hover:text-white"
               }`}
             >
               <span>{tab}</span>
-              {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-[8px] bg-gray-400" />
-              )}
+              <span
+                className={`absolute bottom-0 left-0 right-0 h-[8px] bg-gray-400 transition-all duration-300 ease-out origin-center ${
+                  isActive
+                    ? "opacity-100 scale-x-100"
+                    : "opacity-0 scale-x-50 pointer-events-none"
+                }`}
+              />
             </button>
           );
         })}
@@ -39,9 +49,8 @@ export default function HeaderTabs({ tabs, active, onChange }: HeaderTabsProps) 
           Hello, <strong className="font-bold">Admin</strong>
         </span>
         <div className="relative size-[50px] shrink-0 rounded-full border-2 border-white overflow-hidden bg-white/20">
-          {/* TODO: ganti dengan aset dari Figma */}
           <Image
-            src="/images/avatar.jpg"
+            src={avatarUrl}
             alt="Avatar Admin"
             width={50}
             height={50}

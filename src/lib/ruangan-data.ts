@@ -2,6 +2,7 @@ export type Room = {
   name: string;
   min: number;
   max: number;
+  imageUrl?: string;
 };
 
 export type Floor = {
@@ -30,6 +31,7 @@ function makeRooms(prefix: string): Room[] {
     name: `Ruang ${prefix}0${i + 1}`,
     min,
     max,
+    imageUrl: `/images/ruang${i + 1}.jpg`,
   }));
 }
 

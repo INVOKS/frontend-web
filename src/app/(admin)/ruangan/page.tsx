@@ -7,7 +7,7 @@ import { FaPlusCircle } from "react-icons/fa";
 import { buildings } from "@/lib/ruangan-data";
 
 export default function RuanganPage() {
-  const [building, setBuilding] = useState<string>("GEDUNG DIENG");
+  const [building, setBuilding] = useState<string>("GEDUNG BNI");
   const [selectedFloor, setSelectedFloor] = useState<string>("");
 
   const tabs = buildings.map((b) => b.name);
@@ -51,11 +51,11 @@ export default function RuanganPage() {
       </div>
 
       {/* 3. Section Per Lantai */}
-      <div className="flex flex-col gap-6">
+      <div key={building + "-" + selectedFloor} className="flex flex-col gap-6 animate-fadeIn">
         {visibleFloors.map((floorData) => (
           <section key={floorData.id} className="w-full">
             {/* Banner Lantai */}
-            <div className="flex h-[28px] w-full items-center justify-center bg-accent text-sm font-medium text-black">
+            <div className="flex h-[36px] w-full items-center justify-center bg-accent text-lg font-bold text-black tracking-wide">
               {floorData.label}
             </div>
 
@@ -67,6 +67,7 @@ export default function RuanganPage() {
                   name={room.name}
                   capacityMin={room.min}
                   capacityMax={room.max}
+                  imageUrl={room.imageUrl}
                 />
               ))}
             </div>
