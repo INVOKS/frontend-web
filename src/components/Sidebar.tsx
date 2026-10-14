@@ -13,31 +13,81 @@ import {
 import { MdLogout } from "react-icons/md";
 
 const navigationItems = [
-  { label: "Dashboard", href: "/dashboard", icon: FaHome },
-  { label: "Profil", href: "/profil", icon: FaUserCircle },
-  { label: "Ruangan", href: "/ruangan", icon: FaBuilding },
-  { label: "Barang", href: "/barang", icon: FaInbox },
-  { label: "Kelola Peminjaman", href: "/kelola-peminjaman", icon: FaShoppingBag },
+  {
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: FaHome,
+  },
+  {
+    label: "Profil",
+    href: "/profil",
+    icon: FaUserCircle,
+  },
+  {
+    label: "Ruangan",
+    href: "/ruangan",
+    icon: FaBuilding,
+  },
+  {
+    label: "Barang",
+    href: "/barang",
+    icon: FaInbox,
+  },
+  {
+    label: "Kelola Peminjaman",
+    href: "/kelola-peminjaman",
+    icon: FaShoppingBag,
+  },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
 
   const handleLogout = () => {
-    // Placeholder aksi logout
     console.log("Logout clicked");
   };
 
   return (
-    <aside className="sticky top-0 h-screen w-[274px] shrink-0 bg-sidebar text-white flex flex-col justify-between py-6 select-none">
-      {/* Top Section: Logo & Navigasi */}
+    <aside
+      className="
+        sticky
+        top-0
+        flex
+        h-screen
+        w-[274px]
+        shrink-0
+        select-none
+        flex-col
+        justify-between
+        bg-[#193775]
+        py-6
+        text-white
+      "
+    >
+      {/* Top Section */}
       <div>
         {/* Logo & Brand */}
         <Link
           href="/dashboard"
-          className="flex items-center gap-3 px-6 mb-8 focus:outline-none"
+          className="
+            mb-8
+            flex
+            items-center
+            gap-3
+            px-6
+            focus:outline-none
+          "
         >
-          <div className="relative size-10 shrink-0 flex items-center justify-center">
+          <div
+            className="
+              relative
+              flex
+              size-10
+              shrink-0
+              items-center
+              justify-center
+            "
+          >
             <Image
               src="/images/logoinvoks.png"
               alt="Logo INVOKS"
@@ -47,12 +97,20 @@ export default function Sidebar() {
               priority
             />
           </div>
-          <span className="text-2xl font-bold tracking-widest uppercase">
+
+          <span
+            className="
+              text-2xl
+              font-bold
+              uppercase
+              tracking-widest
+            "
+          >
             INVOKS
           </span>
         </Link>
 
-        {/* Menu Navigasi */}
+        {/* Navigation */}
         <nav aria-label="Navigasi Admin" className="px-2.5">
           <ul className="flex flex-col gap-5">
             {navigationItems.map(({ label, href, icon: Icon }) => {
@@ -64,13 +122,31 @@ export default function Sidebar() {
                   <Link
                     href={href}
                     aria-current={isActive ? "page" : undefined}
-                    className={`flex items-center gap-3 h-[38px] px-4 rounded-lg text-lg font-medium transition-colors ${
-                      isActive
-                        ? "bg-sidebar-active border border-white/20"
-                        : "border border-transparent hover:bg-white/10"
-                    }`}
+                    className={`
+                      flex
+                      h-[42px]
+                      items-center
+                      gap-3
+                      rounded-lg
+                      border
+                      px-4
+                      text-base
+                      font-medium
+                      transition-colors
+                      duration-200
+
+                      ${
+                        isActive
+                          ? "border-white/20 bg-[#405A91]"
+                          : "border-transparent hover:bg-white/10"
+                      }
+                    `}
                   >
-                    <Icon className="text-xl shrink-0" aria-hidden="true" />
+                    <Icon
+                      className="shrink-0 text-xl"
+                      aria-hidden="true"
+                    />
+
                     <span>{label}</span>
                   </Link>
                 </li>
@@ -80,14 +156,31 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      {/* Bottom Section: Tombol Logout */}
+      {/* Logout */}
       <div className="flex justify-center pb-4">
         <button
           type="button"
           onClick={handleLogout}
-          className="flex items-center gap-2 px-5 py-2 rounded-lg text-lg font-medium hover:bg-white/10 transition-colors focus:outline-none"
+          className="
+            flex
+            items-center
+            gap-2
+            rounded-lg
+            px-5
+            py-2
+            text-lg
+            font-medium
+            transition-colors
+            duration-200
+            hover:bg-white/10
+            focus:outline-none
+          "
         >
-          <MdLogout className="text-2xl" aria-hidden="true" />
+          <MdLogout
+            className="text-2xl"
+            aria-hidden="true"
+          />
+
           <span>Logout</span>
         </button>
       </div>

@@ -1,10 +1,12 @@
 @import "tailwindcss";
 
-@theme {
-  --color-sidebar: #005f99;
-  --color-navy: #1c3a63;   
-  --color-accent: #ffbf00;  
-  --color-sidebar-active: rgba(255, 255, 255, 0.12);
+@layer base {
+  :root {
+    --color-sidebar: #005f99;
+    --color-navy: #1c3a63;
+    --color-accent: #ffbf00;
+    --color-sidebar-active: rgba(255, 255, 255, 0.12);
+  }
 }
 
 @keyframes fadeIn {
