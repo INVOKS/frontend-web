@@ -1,13 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import HeaderTabs from "@/components/HeaderTabs";
 import RoomCard from "@/components/RoomCard";
 import RoomDetailModal from "@/components/RoomDetailModal";
 import RoomEditModal from "@/components/RoomEditModal";
 import RoomAddModal from "@/components/RoomAddModal";
-import { FaPlus } from "react-icons/fa";
-import { buildings, Building, Floor, Ruangan } from "@/lib/ruangan-data";
+import { FaPlus, FaUserCircle } from "react-icons/fa";
+import {
+  buildings,
+  Building,
+  Floor,
+  Ruangan,
+} from "@/lib/ruangan-data";
 
 export default function RuanganPage() {
   const [buildingList, setBuildingList] = useState<Building[]>(buildings);
@@ -15,21 +19,20 @@ export default function RuanganPage() {
   const [selectedFloor, setSelectedFloor] = useState<string>("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // State pengelolaan modal terpusat (hanya satu modal yang aktif pada satu waktu)
+  // Hanya satu modal detail/edit aktif dalam satu waktu
   const [modalState, setModalState] = useState<{
     type: "detail" | "edit";
     room: Ruangan;
   } | null>(null);
 
-  const tabs = buildingList.map((b) => b.name);
   const activeBuilding =
-    buildingList.find((b) => b.name === building) ?? buildingList[0];
+    buildingList.find((item) => item.name === building) ?? buildingList[0];
 
   const visibleFloors = selectedFloor
-    ? activeBuilding.floors.filter((f) => f.id === selectedFloor)
+    ? activeBuilding.floors.filter((floor) => floor.id === selectedFloor)
     : activeBuilding.floors;
 
-  // Ganti tab gedung: reset filter lantai
+  // Ganti gedung dan reset filter lantai
   const handleBuildingChange = (name: string) => {
     setBuilding(name);
     setSelectedFloor("");
@@ -37,78 +40,98 @@ export default function RuanganPage() {
 
   // Klik card ruangan -> buka modal detail
   const handleCardClick = (room: Ruangan) => {
-    setModalState({ type: "detail", room });
+    setModalState({
+      type: "detail",
+      room,
+    });
   };
 
-  // Dari modal detail klik tombol Edit -> buka modal edit
+  // Dari modal detail -> edit
   const handleEditFromDetail = (room: Ruangan) => {
-    setModalState({ type: "edit", room });
+    setModalState({
+      type: "edit",
+      room,
+    });
   };
 
-  // Tutup modal edit tanpa simpan -> kembali ke modal detail dengan data lama
+  // Tutup modal edit -> kembali ke detail
   const handleCloseEdit = () => {
     if (modalState?.room) {
-      setModalState({ type: "detail", room: modalState.room });
+      setModalState({
+        type: "detail",
+        room: modalState.room,
+      });
     } else {
       setModalState(null);
     }
   };
 
-  // Tutup modal detail -> tutup semua modal
   const handleCloseDetail = () => {
     setModalState(null);
   };
 
-  // Tambah ruangan baru
+  // Tambah ruangan
   const handleAddRoom = (newRoom: Ruangan) => {
-    // TODO: ganti dengan API call saat backend sudah tersedia
     setBuildingList((prevBuildings) => {
-      return prevBuildings.map((b) => {
+      return prevBuildings.map((currentBuilding) => {
         const targetBuildingName = newRoom.gedung || building;
+
         const isCurrentBuilding =
-          b.name === targetBuildingName ||
-          b.name.includes(targetBuildingName) ||
-          targetBuildingName.includes(b.name.replace(/^GEDUNG\s+/i, ""));
+          currentBuilding.name === targetBuildingName ||
+          currentBuilding.name.includes(targetBuildingName) ||
+          targetBuildingName.includes(
+            currentBuilding.name.replace(/^GEDUNG\s+/i, ""),
+          );
 
-        if (!isCurrentBuilding) return b;
+        if (!isCurrentBuilding) {
+          return currentBuilding;
+        }
 
-        // 1. Tentukan target lantai
         const targetFloorId = String(newRoom.lantai)
           .toLowerCase()
           .includes("basement")
           ? "basement"
           : String(newRoom.lantai);
+
         const targetFloorLabel =
           targetFloorId === "basement"
             ? "Basement"
             : `Lantai ${newRoom.lantai}`;
 
-        // 2. Cek apakah lantai sudah ada di gedung ini
-        const targetFloorExists = b.floors.some((f) => f.id === targetFloorId);
+        const targetFloorExists = currentBuilding.floors.some(
+          (floor) => floor.id === targetFloorId,
+        );
 
         let updatedFloors: Floor[];
+
         if (targetFloorExists) {
-          updatedFloors = b.floors.map((floor) =>
+          updatedFloors = currentBuilding.floors.map((floor) =>
             floor.id === targetFloorId
-              ? { ...floor, rooms: [...floor.rooms, newRoom] }
-              : floor
+              ? {
+                  ...floor,
+                  rooms: [...floor.rooms, newRoom],
+                }
+              : floor,
           );
         } else {
-          // Buat lantai baru jika belum ada dan urutkan
           const newFloor: Floor = {
             id: targetFloorId,
             label: targetFloorLabel,
             rooms: [newRoom],
           };
-          updatedFloors = [...b.floors, newFloor].sort((f1, f2) => {
-            if (f1.id === "basement") return -1;
-            if (f2.id === "basement") return 1;
-            return Number(f1.id) - Number(f2.id);
-          });
+
+          updatedFloors = [...currentBuilding.floors, newFloor].sort(
+            (floorA, floorB) => {
+              if (floorA.id === "basement") return -1;
+              if (floorB.id === "basement") return 1;
+
+              return Number(floorA.id) - Number(floorB.id);
+            },
+          );
         }
 
         return {
-          ...b,
+          ...currentBuilding,
           floors: updatedFloors,
         };
       });
@@ -119,125 +142,225 @@ export default function RuanganPage() {
 
   // Simpan hasil edit ruangan
   const handleSaveRoom = (updatedRoom: Ruangan) => {
-    // TODO: ganti dengan API call saat backend sudah tersedia
     setBuildingList((prevBuildings) => {
-      return prevBuildings.map((b) => {
+      return prevBuildings.map((currentBuilding) => {
         const isCurrentBuilding =
-          b.name === updatedRoom.gedung ||
-          b.name.includes(updatedRoom.gedung) ||
-          updatedRoom.gedung.includes(b.name.replace(/^GEDUNG\s+/i, ""));
+          currentBuilding.name === updatedRoom.gedung ||
+          currentBuilding.name.includes(updatedRoom.gedung) ||
+          updatedRoom.gedung.includes(
+            currentBuilding.name.replace(/^GEDUNG\s+/i, ""),
+          );
 
-        if (!isCurrentBuilding) return b;
+        if (!isCurrentBuilding) {
+          return currentBuilding;
+        }
 
-        // 1. Hapus ruangan dari lantai lamanya
-        const cleanFloors = b.floors.map((floor) => ({
+        // Hapus ruangan dari posisi sebelumnya
+        const cleanFloors = currentBuilding.floors.map((floor) => ({
           ...floor,
-          rooms: floor.rooms.filter((r) => r.id !== updatedRoom.id),
+          rooms: floor.rooms.filter((room) => room.id !== updatedRoom.id),
         }));
 
-        // 2. Tentukan target lantai
+        // Tentukan lantai tujuan
         const targetFloorId = String(updatedRoom.lantai)
           .toLowerCase()
           .includes("basement")
           ? "basement"
           : String(updatedRoom.lantai);
+
         const targetFloorLabel =
           targetFloorId === "basement"
             ? "Basement"
             : `Lantai ${updatedRoom.lantai}`;
 
-        // 3. Masukkan ke lantai tujuan
         const targetFloorExists = cleanFloors.some(
-          (f) => f.id === targetFloorId
+          (floor) => floor.id === targetFloorId,
         );
 
         let updatedFloors = cleanFloors;
+
         if (targetFloorExists) {
           updatedFloors = cleanFloors.map((floor) =>
             floor.id === targetFloorId
-              ? { ...floor, rooms: [...floor.rooms, updatedRoom] }
-              : floor
+              ? {
+                  ...floor,
+                  rooms: [...floor.rooms, updatedRoom],
+                }
+              : floor,
           );
         } else {
-          // Buat lantai baru jika belum ada dan urutkan
           const newFloor: Floor = {
             id: targetFloorId,
             label: targetFloorLabel,
             rooms: [updatedRoom],
           };
-          updatedFloors = [...cleanFloors, newFloor].sort((f1, f2) => {
-            if (f1.id === "basement") return -1;
-            if (f2.id === "basement") return 1;
-            return Number(f1.id) - Number(f2.id);
-          });
+
+          updatedFloors = [...cleanFloors, newFloor].sort(
+            (floorA, floorB) => {
+              if (floorA.id === "basement") return -1;
+              if (floorB.id === "basement") return 1;
+
+              return Number(floorA.id) - Number(floorB.id);
+            },
+          );
         }
 
         return {
-          ...b,
+          ...currentBuilding,
           floors: updatedFloors,
         };
       });
     });
 
-    // Setelah simpan sukses, kembali ke modal detail dengan data terbaru
-    setModalState({ type: "detail", room: updatedRoom });
+    // Setelah save kembali ke modal detail
+    setModalState({
+      type: "detail",
+      room: updatedRoom,
+    });
   };
 
   // Hapus ruangan
   const handleDeleteRoom = (room: Ruangan) => {
-    // TODO: ganti dengan API call saat backend sudah tersedia
-    setBuildingList((prev) =>
-      prev.map((b) => ({
-        ...b,
-        floors: b.floors.map((f) => ({
-          ...f,
-          rooms: f.rooms.filter((r) => r.id !== room.id),
+    setBuildingList((prevBuildings) =>
+      prevBuildings.map((currentBuilding) => ({
+        ...currentBuilding,
+        floors: currentBuilding.floors.map((floor) => ({
+          ...floor,
+          rooms: floor.rooms.filter(
+            (currentRoom) => currentRoom.id !== room.id,
+          ),
         })),
-      }))
+      })),
     );
+
     setModalState(null);
   };
 
   return (
     <div className="relative min-h-screen bg-white pb-24">
-      {/* 1. Header Tabs Gedung */}
-      <HeaderTabs
-        tabs={tabs}
-        active={building}
-        onChange={handleBuildingChange}
-      />
+      {/* =====================================================
+          HEADER GEDUNG
+      ===================================================== */}
+      <header className="flex h-[84px] w-full items-center justify-between bg-[#213F6B] px-10">
+        {/* Tabs Gedung */}
+        <div className="flex h-full items-end gap-1">
+          {buildingList.map((item) => {
+            const isActive = building === item.name;
 
-      {/* 2. Filter Dropdown Lantai */}
-      <div className="flex justify-end pr-[22px] py-[36px]">
+            return (
+              <button
+                key={item.name}
+                type="button"
+                onClick={() => handleBuildingChange(item.name)}
+                className={`
+                  relative
+                  flex
+                  h-full
+                  items-center
+                  px-7
+                  text-[18px]
+                  font-semibold
+                  text-white
+                  transition-colors
+                  hover:bg-white/5
+                  ${
+                    isActive
+                      ? "after:absolute after:bottom-0 after:left-0 after:h-[8px] after:w-full after:bg-[#AAB0BA]"
+                      : ""
+                  }
+                `}
+              >
+                {item.name}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Admin */}
+        <div className="flex items-center gap-4">
+          <span className="text-base text-white">
+            Hello, <strong>Admin</strong>
+          </span>
+
+          <div className="flex size-[52px] items-center justify-center rounded-full border-[3px] border-white bg-white text-[#213F6B]">
+            <FaUserCircle className="size-[46px]" aria-hidden="true" />
+          </div>
+        </div>
+      </header>
+
+      {/* =====================================================
+          FILTER LANTAI
+      ===================================================== */}
+      <div className="flex justify-end px-[24px] py-[35px]">
         <select
           value={selectedFloor}
-          onChange={(e) => setSelectedFloor(e.target.value)}
+          onChange={(event) => setSelectedFloor(event.target.value)}
           aria-label="Pilih lantai"
-          className="h-[36px] w-[237px] rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-800 shadow-sm transition-colors focus:border-sidebar focus:outline-none"
+          className="
+            h-[38px]
+            w-[237px]
+            rounded-md
+            border
+            border-gray-300
+            bg-white
+            px-4
+            text-sm
+            text-gray-800
+            shadow-sm
+            outline-none
+            transition
+            focus:border-[#213F6B]
+          "
         >
           <option value="">Pilih lantai</option>
-          {activeBuilding.floors.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.label}
+
+          {activeBuilding.floors.map((floor) => (
+            <option key={floor.id} value={floor.id}>
+              {floor.label}
             </option>
           ))}
         </select>
       </div>
 
-      {/* 3. Section Per Lantai */}
+      {/* =====================================================
+          LIST LANTAI
+      ===================================================== */}
       <div
-        key={building + "-" + selectedFloor}
-        className="flex flex-col gap-6 animate-fadeIn"
+        key={`${building}-${selectedFloor}`}
+        className="flex flex-col animate-fadeIn"
       >
         {visibleFloors.map((floorData) => (
           <section key={floorData.id} className="w-full">
-            {/* Banner Lantai */}
-            <div className="flex h-[36px] w-full items-center justify-center bg-accent text-lg font-bold text-black tracking-wide">
+            {/* Banner lantai */}
+            <div
+              className="
+                flex
+                h-[30px]
+                w-full
+                items-center
+                justify-center
+                bg-[#FFC400]
+                text-base
+                font-bold
+                text-black
+              "
+            >
               {floorData.label}
             </div>
 
-            {/* Grid Kartu Ruangan */}
-            <div className="grid grid-cols-2 gap-8 px-6 py-[32px] md:grid-cols-3 md:px-[56px] xl:grid-cols-5">
+            {/* Grid kartu ruangan */}
+            <div
+              className="
+                grid
+                grid-cols-2
+                gap-8
+                px-8
+                py-[34px]
+                md:grid-cols-3
+                xl:grid-cols-5
+                xl:px-[56px]
+              "
+            >
               {floorData.rooms.map((room) => (
                 <RoomCard
                   key={room.id || room.name}
@@ -253,17 +376,42 @@ export default function RuanganPage() {
         ))}
       </div>
 
-      {/* 4. Tombol Tambah Melayang */}
+      {/* =====================================================
+          TOMBOL TAMBAH
+      ===================================================== */}
       <button
         type="button"
         onClick={() => setIsAddModalOpen(true)}
         aria-label="Tambah ruangan"
-        className="fixed bottom-8 right-8 z-30 flex size-[56px] cursor-pointer items-center justify-center rounded-full bg-[#0F5A96] text-white shadow-xl transition-all duration-200 hover:scale-105 hover:brightness-110 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0F5A96] focus-visible:ring-offset-2"
+        className="
+          fixed
+          bottom-8
+          right-8
+          z-30
+          flex
+          size-[56px]
+          cursor-pointer
+          items-center
+          justify-center
+          rounded-2xl
+          bg-[#0672A6]
+          text-white
+          shadow-lg
+          transition
+          hover:scale-105
+          hover:brightness-110
+          active:scale-95
+          focus:outline-none
+        "
       >
-        <FaPlus className="size-6" aria-hidden="true" />
+        <div className="flex size-[32px] items-center justify-center rounded-full border-[4px] border-white">
+          <FaPlus className="size-4" aria-hidden="true" />
+        </div>
       </button>
 
-      {/* 5. Modal Pop-up Detail Ruangan */}
+      {/* =====================================================
+          MODAL DETAIL
+      ===================================================== */}
       <RoomDetailModal
         room={modalState?.type === "detail" ? modalState.room : null}
         open={modalState?.type === "detail"}
@@ -272,7 +420,9 @@ export default function RuanganPage() {
         onDelete={handleDeleteRoom}
       />
 
-      {/* 6. Modal Pop-up Edit Ruangan */}
+      {/* =====================================================
+          MODAL EDIT
+      ===================================================== */}
       <RoomEditModal
         room={modalState?.type === "edit" ? modalState.room : null}
         open={modalState?.type === "edit"}
@@ -280,7 +430,9 @@ export default function RuanganPage() {
         onSave={handleSaveRoom}
       />
 
-      {/* 7. Modal Pop-up Tambah Ruangan */}
+      {/* =====================================================
+          MODAL TAMBAH
+      ===================================================== */}
       <RoomAddModal
         open={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
