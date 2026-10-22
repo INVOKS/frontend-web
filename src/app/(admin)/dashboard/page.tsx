@@ -1,7 +1,20 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { getStoredUser } from "@/lib/auth";
 
 export default function DashboardPage() {
+	const [adminName, setAdminName] = useState<string>("Admin");
+
+	useEffect(() => {
+		const user = getStoredUser();
+		if (user?.namaLengkap) {
+			setAdminName(user.namaLengkap);
+		}
+	}, []);
+
 	return (
 		<section className="relative flex min-h-screen flex-col overflow-hidden text-white">
 
@@ -17,7 +30,7 @@ export default function DashboardPage() {
 
 			<header className="relative z-10 flex items-center justify-end gap-3 px-10 py-8">
 				<p className="text-sm">
-					Hello, <span className="font-semibold">Admin</span>
+					Hello, <span className="font-semibold">{adminName}</span>
 				</p>
 				<Image
 	            src="/images/deddydieng.png"
@@ -32,7 +45,7 @@ export default function DashboardPage() {
 				<h1 className="text-4xl font-bold tracking-tight md:text-7xl">
 					Selamat Datang
 				</h1>
-				<p className="mt-2 text-3xl font-semibold md:text-4xl">Admin!</p>
+				<p className="mt-2 text-3xl font-semibold md:text-4xl">{adminName}!</p>
 
 				<h2 className="mt-14 text-2xl font-medium md:text-4xl">
 					Sistem Kelola Inventaris Vokasi (INVOKS)

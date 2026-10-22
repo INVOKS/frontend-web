@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { getStoredUser } from "@/lib/auth";
 
 type HeaderTabsProps = {
   tabs: string[];
@@ -15,6 +17,14 @@ export default function HeaderTabs({
   onChange,
   avatarUrl = "/images/deddydieng.png",
 }: HeaderTabsProps) {
+  const [adminName, setAdminName] = useState<string>("Admin");
+
+  useEffect(() => {
+    const user = getStoredUser();
+    if (user?.namaLengkap) {
+      setAdminName(user.namaLengkap);
+    }
+  }, []);
   return (
     <header className="h-[84px] bg-navy flex items-center justify-between px-8 select-none">
       {/* Tabs Gedung */}
@@ -46,7 +56,7 @@ export default function HeaderTabs({
       {/* Admin Profile Info */}
       <div className="flex items-center gap-4">
         <span className="text-sm text-white">
-          Hello, <strong className="font-bold">Admin</strong>
+          Hello, <strong className="font-bold">{adminName}</strong>
         </span>
         <div className="relative size-[50px] shrink-0 rounded-full border-2 border-white overflow-hidden bg-white/20">
           <Image

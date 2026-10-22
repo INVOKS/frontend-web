@@ -11,6 +11,7 @@ import {
   FaUserCircle,
 } from "react-icons/fa";
 import { MdLogout } from "react-icons/md";
+import { logout } from "@/lib/auth";
 
 const navigationItems = [
   { label: "Dashboard", href: "/dashboard", icon: FaHome },
@@ -24,8 +25,9 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const handleLogout = () => {
-    // Placeholder aksi logout
-    console.log("Logout clicked");
+    if (confirm("Apakah Anda yakin ingin keluar dari akun admin?")) {
+      logout();
+    }
   };
 
   return (

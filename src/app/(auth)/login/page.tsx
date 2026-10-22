@@ -4,8 +4,9 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, EyeOff, Eye } from "lucide-react";
+import { Check, EyeOff, Eye, AlertCircle, Loader2 } from "lucide-react";
 import { Be_Vietnam_Pro } from "next/font/google";
+import { loginAdmin } from "@/lib/auth";
 
 const font = Be_Vietnam_Pro({
   subsets: ["latin"],
@@ -21,12 +22,38 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: ganti dengan request login ke backend kamu
-    console.log({ email, password, remember });
-    router.push("/dashboard");
+    setErrorMessage(null);
+    setIsLoading(true);
+
+    try {
+      const response = await loginAdmin({
+        email: email.trim(),
+        password,
+        ingatSaya: remember,
+      });
+
+      if (!response.success) {
+        setErrorMessage(
+          response.message || "Gagal masuk. Periksa kembali email dan kata sandi Anda."
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      // Berhasil login
+      router.push("/dashboard");
+    } catch (err: unknown) {
+      console.error("Login error:", err);
+      setErrorMessage(
+        "Tidak dapat terhubung ke server. Pastikan backend INVOKS sedang berjalan."
+      );
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -103,6 +130,19 @@ export default function LoginPage() {
             className="w-full"
             style={{ marginTop: px(38) }}
           >
+            {/* Pesan Kesalahan / Error Banner */}
+            {errorMessage && (
+              <div
+                className="mb-6 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700 shadow-sm"
+                role="alert"
+              >
+                <AlertCircle className="mt-0.5 size-5 shrink-0 text-red-600" />
+                <span className="text-sm font-medium leading-relaxed">
+                  {errorMessage}
+                </span>
+              </div>
+            )}
+
             {/* Input: tinggi 73, jarak antar input 39 */}
             <div className="flex flex-col" style={{ gap: px(39) }}>
               <input
@@ -111,7 +151,8 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full border border-[#434343] text-gray-900 outline-none placeholder:text-[#d2d2d2] focus:border-[#006199] focus:ring-1 focus:ring-[#006199]"
+                disabled={isLoading}
+                className="w-full border border-[#434343] text-gray-900 outline-none placeholder:text-[#d2d2d2] focus:border-[#006199] focus:ring-1 focus:ring-[#006199] disabled:bg-gray-100 disabled:cursor-not-allowed"
                 style={{
                   height: px(73),
                   paddingLeft: px(27),
@@ -128,7 +169,8 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full border border-[#434343] text-gray-900 outline-none placeholder:text-[#d2d2d2] focus:border-[#006199] focus:ring-1 focus:ring-[#006199]"
+                  disabled={isLoading}
+                  className="w-full border border-[#434343] text-gray-900 outline-none placeholder:text-[#d2d2d2] focus:border-[#006199] focus:ring-1 focus:ring-[#006199] disabled:bg-gray-100 disabled:cursor-not-allowed"
                   style={{
                     height: px(73),
                     paddingLeft: px(27),
@@ -170,6 +212,7 @@ export default function LoginPage() {
                   type="checkbox"
                   checked={remember}
                   onChange={(e) => setRemember(e.target.checked)}
+                  disabled={isLoading}
                   className="peer sr-only"
                 />
                 <span
@@ -191,7 +234,7 @@ export default function LoginPage() {
               </label>
 
               <Link
-                href="/lupa-kata-sandi"
+                href="/forgot-password"
                 className="text-[#1f6feb] underline hover:text-[#1555b8]"
               >
                 Lupa kata sandi
@@ -202,7 +245,8 @@ export default function LoginPage() {
             <div className="flex justify-center" style={{ marginTop: px(44) }}>
               <button
                 type="submit"
-                className="max-w-full bg-[#006199] font-semibold text-white transition hover:bg-[#004f7e]"
+                disabled={isLoading}
+                className="flex items-center justify-center gap-2 max-w-full bg-[#006199] font-semibold text-white transition hover:bg-[#004f7e] disabled:opacity-70 disabled:cursor-not-allowed"
                 style={{
                   width: px(308),
                   height: px(73),
@@ -210,7 +254,14 @@ export default function LoginPage() {
                   borderRadius: px(8 + 6),
                 }}
               >
-                Masuk
+                {isLoading ? (
+                  <>
+                    <Loader2 className="animate-spin" style={{ width: px(28), height: px(28) }} />
+                    <span style={{ fontSize: px(24) }}>Memproses...</span>
+                  </>
+                ) : (
+                  "Masuk"
+                )}
               </button>
             </div>
           </form>
