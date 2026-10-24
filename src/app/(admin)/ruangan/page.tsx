@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import RoomCard from "@/components/RoomCard";
-import RoomDetailModal from "@/components/RoomDetailModal";
-import RoomEditModal from "@/components/RoomEditModal";
-import RoomAddModal from "@/components/RoomAddModal";
+import RoomCard from "./components/RoomCard";
+import RoomDetailModal from "./components/RoomDetailModal";
+import RoomEditModal from "./components/RoomEditModal";
+import RoomAddModal from "./components/RoomAddModal";
 import { FaPlus, FaUserCircle } from "react-icons/fa";
 import {
   buildings,

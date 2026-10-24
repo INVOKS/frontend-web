@@ -45,13 +45,9 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const handleLogout = () => {
-<<<<<<< HEAD
     if (confirm("Apakah Anda yakin ingin keluar dari akun admin?")) {
       logout();
     }
-=======
-    console.log("Logout clicked");
->>>>>>> 25fc2e13262c1cd3eca9ad6b65841721d31e4fe8
   };
 
   return (
