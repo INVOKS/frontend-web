@@ -1,23 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { getStoredUser } from "@/lib/auth";
 
 export default function DashboardPage() {
-	const [adminName, setAdminName] = useState<string>("Admin");
-
-	useEffect(() => {
-		const user = getStoredUser();
-		if (user?.namaLengkap) {
-			setAdminName(user.namaLengkap);
-		}
-	}, []);
-
 	return (
-		<section className="relative flex min-h-screen flex-col overflow-hidden text-white">
-
+		<section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 text-center text-white">
+			{/* Background Image & Overlay */}
 			<Image
 				src="/images/vokasi.jpg"
 				alt="Gedung Vokasi"
@@ -26,40 +15,35 @@ export default function DashboardPage() {
 				sizes="100vw"
 				className="object-cover"
 			/>
-			<div className="absolute inset-0 bg-[#000000]/55" />
+			<div className="absolute inset-0 bg-black/60" />
 
-			<header className="relative z-10 flex items-center justify-end gap-3 px-10 py-8">
-				<p className="text-sm">
-					Hello, <span className="font-semibold">{adminName}</span>
-				</p>
-				<Image
-	            src="/images/deddydieng.png"
-	            alt="Foto profil Admin"
-	            width={56}
-	            height={56}
-	            className="size-14 rounded-full border-2 border-white object-cover"
-                />
-			</header>
-
-			<div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-24 text-center">
-				<h1 className="text-4xl font-bold tracking-tight md:text-7xl">
+			{/* Center Content sesuai Desain */}
+			<div className="relative z-10 flex flex-col items-center justify-center max-w-3xl">
+				{/* Judul Selamat Datang Admin! */}
+				<h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl">
 					Selamat Datang
 				</h1>
-				<p className="mt-2 text-3xl font-semibold md:text-4xl">{adminName}!</p>
+				<p className="mt-2 text-2xl font-bold text-white sm:text-3xl md:text-4xl">
+					Admin!
+				</p>
 
-				<h2 className="mt-14 text-2xl font-medium md:text-4xl">
+				{/* Subtitle & Deskripsi */}
+				<h2 className="mt-8 text-xl font-bold text-white sm:text-2xl tracking-normal">
 					Sistem Kelola Inventaris Vokasi (INVOKS)
 				</h2>
-				<p className="mt-2 max-w-xl text-base md:text-xl">
+				<p className="mt-2 text-sm text-gray-200 sm:text-base font-normal">
 					Kelola data ruangan, barang, dan peminjaman dengan mudah
 				</p>
 
-				<Link
-					href="/kelola-peminjaman"
-					className="mt-10 inline-flex h-[45px] w-[200px] items-center justify-center rounded-xl bg-[#00629F] text-lg font-medium shadow-lg transition-colors hover:bg-[#0A74BA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-				>
-					Mulai Kelola
-				</Link>
+				{/* Tombol Mulai Kelola */}
+				<div className="mt-8">
+					<Link
+						href="/ruangan"
+						className="inline-flex items-center justify-center rounded-lg bg-[#00629B] px-10 py-3 text-base font-semibold text-white shadow-md transition-all duration-150 hover:bg-[#005282] hover:shadow-lg active:scale-95"
+					>
+						Mulai Kelola
+					</Link>
+				</div>
 			</div>
 		</section>
 	);

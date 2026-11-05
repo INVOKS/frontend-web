@@ -20,11 +20,6 @@ const navigationItems = [
     icon: FaHome,
   },
   {
-    label: "Profil",
-    href: "/profil",
-    icon: FaUserCircle,
-  },
-  {
     label: "Ruangan",
     href: "/ruangan",
     icon: FaBuilding,
@@ -38,6 +33,11 @@ const navigationItems = [
     label: "Kelola Peminjaman",
     href: "/kelola-peminjaman",
     icon: FaShoppingBag,
+  },
+  {
+    label: "Profil",
+    href: "/profil",
+    icon: FaUserCircle,
   },
 ];
 
@@ -57,12 +57,12 @@ export default function Sidebar() {
         top-0
         flex
         h-screen
-        w-[274px]
+        w-[245px]
         shrink-0
         select-none
         flex-col
         justify-between
-        bg-[#193775]
+        bg-[#025D96]
         py-6
         text-white
       "
@@ -81,16 +81,7 @@ export default function Sidebar() {
             focus:outline-none
           "
         >
-          <div
-            className="
-              relative
-              flex
-              size-10
-              shrink-0
-              items-center
-              justify-center
-            "
-          >
+          <div className="relative flex size-10 shrink-0 items-center justify-center">
             <Image
               src="/images/logoinvoks.png"
               alt="Logo INVOKS"
@@ -104,9 +95,9 @@ export default function Sidebar() {
           <span
             className="
               text-2xl
-              font-bold
+              font-extrabold
               uppercase
-              tracking-widest
+              tracking-wider
             "
           >
             INVOKS
@@ -114,8 +105,8 @@ export default function Sidebar() {
         </Link>
 
         {/* Navigation */}
-        <nav aria-label="Navigasi Admin" className="px-2.5">
-          <ul className="flex flex-col gap-5">
+        <nav aria-label="Navigasi Admin" className="px-3.5">
+          <ul className="flex flex-col gap-3">
             {navigationItems.map(({ label, href, icon: Icon }) => {
               const isActive =
                 pathname === href || pathname.startsWith(`${href}/`);
@@ -127,21 +118,20 @@ export default function Sidebar() {
                     aria-current={isActive ? "page" : undefined}
                     className={`
                       flex
-                      h-[42px]
+                      h-[44px]
                       items-center
-                      gap-3
-                      rounded-lg
-                      border
+                      gap-3.5
+                      rounded-[10px]
                       px-4
-                      text-base
-                      font-medium
-                      transition-colors
-                      duration-200
+                      text-[15px]
+                      font-semibold
+                      transition-all
+                      duration-150
 
                       ${
                         isActive
-                          ? "border-white/20 bg-[#405A91]"
-                          : "border-transparent hover:bg-white/10"
+                          ? "border border-white/40 bg-white/15 text-white shadow-xs"
+                          : "border border-transparent text-white/90 hover:bg-white/10 hover:text-white"
                       }
                     `}
                   >
@@ -150,7 +140,7 @@ export default function Sidebar() {
                       aria-hidden="true"
                     />
 
-                    <span>{label}</span>
+                    <span className="whitespace-nowrap">{label}</span>
                   </Link>
                 </li>
               );
@@ -160,22 +150,22 @@ export default function Sidebar() {
       </div>
 
       {/* Logout */}
-      <div className="flex justify-center pb-4">
+      <div className="px-6 pb-2">
         <button
           type="button"
           onClick={handleLogout}
           className="
             flex
             items-center
-            gap-2
+            gap-2.5
             rounded-lg
-            px-5
             py-2
-            text-lg
-            font-medium
+            text-base
+            font-bold
+            text-white
             transition-colors
-            duration-200
-            hover:bg-white/10
+            duration-150
+            hover:text-white/80
             focus:outline-none
           "
         >

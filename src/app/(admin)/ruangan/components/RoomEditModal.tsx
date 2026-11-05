@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { FaTimes } from "react-icons/fa";
+import { FaCamera, FaTimes } from "react-icons/fa";
 import { Ruangan } from "@/lib/ruangan-data";
 
 export type RoomEditModalProps = {
@@ -36,6 +36,7 @@ function RoomEditFormContent({
 }: RoomEditFormContentProps) {
   const modalBoxRef = useRef<HTMLDivElement>(null);
   const lantaiInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Inisialisasi state draft dari room (reset otomatis via key={room.id})
   const [lantai, setLantai] = useState(String(room.lantai));
@@ -45,6 +46,50 @@ function RoomEditFormContent({
     room.fasilitas ? [...room.fasilitas] : []
   );
   const [newFasilitasInput, setNewFasilitasInput] = useState("");
+
+  // State gambar: preview URL (blobURL atau path asli) + File asli
+  const originalGambar = room.gambar || room.imageUrl || "/images/ruangan.jpg";
+  const [gambarPreview, setGambarPreview] = useState<string>(originalGambar);
+  const [gambarFile, setGambarFile] = useState<File | null>(null);
+  const [isHoveringImage, setIsHoveringImage] = useState(false);
+
+  // Klik area foto → buka file picker
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  // Saat user memilih file dari dialog
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("File harus berupa gambar (jpg, png, webp, dll.)");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Ukuran file terlalu besar. Maksimal 5 MB.");
+      return;
+    }
+
+    // Revoke URL lama agar tidak memory leak
+    if (gambarFile) URL.revokeObjectURL(gambarPreview);
+
+    const objectUrl = URL.createObjectURL(file);
+    setGambarFile(file);
+    setGambarPreview(objectUrl);
+
+    // Reset supaya file yang sama bisa dipilih ulang
+    e.target.value = "";
+  };
+
+  // Bersihkan blob URL saat komponen di-unmount
+  useEffect(() => {
+    return () => {
+      if (gambarFile) URL.revokeObjectURL(gambarPreview);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Pindahkan fokus awal ke input Lantai saat pertama kali dibuka
   useEffect(() => {
@@ -56,15 +101,17 @@ function RoomEditFormContent({
 
   // Cek apakah ada perubahan yang belum disimpan (dirty state)
   const isDirty = () => {
-    const initialLantai = String(room.lantai);
+    const initialLantai = String(room.lantai).toLowerCase();
+    const currentLantai = lantai.trim().toLowerCase();
     const initialKapasitas = String(room.kapasitas);
     const initialDeskripsi = (room.deskripsi || "").trim();
     const initialFasilitas = room.fasilitas || [];
 
-    if (lantai.trim() !== initialLantai.trim()) return true;
+    if (currentLantai !== initialLantai) return true;
     if (kapasitas.trim() !== initialKapasitas.trim()) return true;
     if (deskripsi.trim() !== initialDeskripsi) return true;
     if (newFasilitasInput.trim() !== "") return true;
+    if (gambarFile !== null) return true;
 
     if (fasilitasItems.length !== initialFasilitas.length) return true;
     for (let i = 0; i < fasilitasItems.length; i++) {
@@ -97,13 +144,16 @@ function RoomEditFormContent({
     return () => window.removeEventListener("keydown", handleKeyDown);
   });
 
-  // Validasi form
-  const lantaiNum = parseInt(lantai.trim(), 10);
-  const isLantaiValid = !isNaN(lantaiNum) && lantaiNum >= 1;
-  const lantaiError = !lantai.trim()
+  // Validasi form — lantai boleh angka ≥ 1 ATAU "Basement" (case-insensitive)
+  const lantaiTrimmed = lantai.trim();
+  const isBasement = lantaiTrimmed.toLowerCase() === "basement";
+  const lantaiNum = parseInt(lantaiTrimmed, 10);
+  const isLantaiValid =
+    isBasement || (!isNaN(lantaiNum) && lantaiNum >= 1);
+  const lantaiError = !lantaiTrimmed
     ? "Lantai wajib diisi"
     : !isLantaiValid
-    ? "Lantai harus berupa angka bulat minimal 1"
+    ? "Lantai harus berupa angka bulat minimal 1, atau \"Basement\""
     : "";
 
   const kapasitasNum = parseInt(kapasitas.trim(), 10);
@@ -143,7 +193,6 @@ function RoomEditFormContent({
     const trimmed = newFasilitasInput.trim();
     if (!trimmed) return;
 
-    // Hindari duplikat tanpa memperhatikan huruf besar/kecil
     const isDuplicate = fasilitasItems.some(
       (item) => item.trim().toLowerCase() === trimmed.toLowerCase()
     );
@@ -160,12 +209,10 @@ function RoomEditFormContent({
     e.preventDefault();
     if (!isFormValid) return;
 
-    // Bersihkan daftar fasilitas
     const cleanedFasilitas = fasilitasItems
       .map((item) => item.trim())
       .filter((item) => item.length > 0);
 
-    // Jika ada teks di input tambah yang belum di-submit, sertakan jika bukan duplikat
     if (newFasilitasInput.trim()) {
       const trimmedNew = newFasilitasInput.trim();
       const exists = cleanedFasilitas.some(
@@ -176,14 +223,21 @@ function RoomEditFormContent({
       }
     }
 
+    // Lantai: simpan sebagai "Basement" (string) atau angka
+    const lantaiFinal: string | number = isBasement
+      ? "Basement"
+      : lantaiNum;
+
     const updatedRoom: Ruangan = {
       ...room,
-      lantai: lantaiNum,
+      lantai: lantaiFinal,
       kapasitas: kapasitasNum,
       min: kapasitasNum,
       max: Math.max(kapasitasNum, room.max || kapasitasNum),
       deskripsi: deskripsi.trim(),
       fasilitas: cleanedFasilitas,
+      gambar: gambarPreview,
+      imageUrl: gambarPreview,
     };
 
     onSave(updatedRoom);
@@ -227,20 +281,63 @@ function RoomEditFormContent({
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
             {/* Kolom Kiri: Foto Ruangan & Deskripsi */}
             <div className="flex flex-col">
-              {/* Foto Ruangan (Tidak dapat diubah) */}
-              <div className="relative h-[240px] w-full overflow-hidden rounded-md border border-gray-100 bg-gray-100 shadow-xs sm:h-[275px]">
+              {/* ── Foto Ruangan – bisa diklik untuk ganti ── */}
+              <div
+                role="button"
+                tabIndex={0}
+                aria-label="Klik untuk mengganti foto ruangan"
+                onClick={handleImageClick}
+                onKeyDown={(e) => e.key === "Enter" && handleImageClick()}
+                onMouseEnter={() => setIsHoveringImage(true)}
+                onMouseLeave={() => setIsHoveringImage(false)}
+                className="relative h-[240px] w-full cursor-pointer overflow-hidden rounded-md border border-gray-200 bg-gray-100 shadow-xs sm:h-[275px] focus:outline-none focus-visible:ring-2 focus-visible:ring-sidebar"
+              >
                 <Image
-                  src={room.gambar || room.imageUrl || "/images/ruangan.jpg"}
+                  src={gambarPreview}
                   alt={room.nama || room.name}
                   fill
                   sizes="(max-width: 768px) 100vw, 420px"
-                  className="object-cover"
+                  className="object-cover transition-transform duration-300"
+                  style={{ transform: isHoveringImage ? "scale(1.04)" : "scale(1)" }}
                   priority
+                  unoptimized={gambarPreview.startsWith("blob:")}
                 />
+
+                {/* Overlay gelap + ikon kamera saat hover */}
+                <div
+                  className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/40 transition-opacity duration-200"
+                  style={{ opacity: isHoveringImage ? 1 : 0 }}
+                >
+                  <FaCamera className="size-8 text-white drop-shadow" />
+                  <span className="text-xs font-semibold text-white drop-shadow">
+                    Klik untuk ganti foto
+                  </span>
+                </div>
+
+                {/* Badge "Foto Baru" jika sudah diganti */}
+                {gambarFile && (
+                  <span className="absolute left-2 top-2 rounded bg-green-600 px-2 py-0.5 text-[11px] font-semibold text-white shadow">
+                    Foto Baru
+                  </span>
+                )}
               </div>
 
+              {/* Input file tersembunyi */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+
+              {/* Teks hint di bawah foto */}
+              <p className="mt-1.5 text-center text-[11px] text-gray-400">
+                Klik foto untuk mengganti • Maks. 5 MB
+              </p>
+
               {/* Heading Deskripsi Ruangan */}
-              <h3 className="mt-5 mb-2 text-sm font-bold text-gray-900 sm:text-base">
+              <h3 className="mt-4 mb-2 text-sm font-bold text-gray-900 sm:text-base">
                 Deskripsi Ruangan
               </h3>
 
