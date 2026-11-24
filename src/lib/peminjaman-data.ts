@@ -2,12 +2,14 @@
 
 export type StatusPeminjaman = "mendatang" | "selesai";
 export type JenisPeminjaman = "ruangan" | "barang";
+export type StatusPengembalianBarang = "dipinjam" | "dikembalikan";
 
 export interface PeminjamanBarangItem {
   nama: string;
   kode: string;
   gambar: string;
   jumlah: number;
+  statusPengembalian?: StatusPengembalianBarang;
 }
 
 export interface DetailRuanganData {
@@ -151,9 +153,9 @@ export const mockPeminjaman: Peminjaman[] = [
     waktuMulai: "13.00 - 17.00",
     waktuSelesai: "09.00 - 13.00",
     detailBarang: [
-      { nama: "Sofa Vokasi", kode: "SF_01", gambar: "/images/Barang F2.png", jumlah: 1 },
-      { nama: "Proyektor", kode: "PK_01", gambar: "/images/Barang E1.png", jumlah: 1 },
-      { nama: "Sofa Vokasi", kode: "SF_02", gambar: "/images/Barang F2.png", jumlah: 1 },
+      { nama: "Sofa Vokasi", kode: "SF_01", gambar: "/images/Barang F2.png", jumlah: 1, statusPengembalian: "dipinjam" },
+      { nama: "Proyektor", kode: "PK_01", gambar: "/images/Barang E1.png", jumlah: 1, statusPengembalian: "dipinjam" },
+      { nama: "Sofa Vokasi", kode: "SF_02", gambar: "/images/Barang F2.png", jumlah: 1, statusPengembalian: "dipinjam" },
     ],
   },
   {
@@ -166,9 +168,9 @@ export const mockPeminjaman: Peminjaman[] = [
     waktuMulai: "13.00 - 17.00",
     waktuSelesai: "09.00 - 13.00",
     detailBarang: [
-      { nama: "Sofa Vokasi", kode: "SF_01", gambar: "/images/Barang F2.png", jumlah: 1 },
-      { nama: "Proyektor", kode: "PK_01", gambar: "/images/Barang E1.png", jumlah: 1 },
-      { nama: "Sofa Vokasi", kode: "SF_02", gambar: "/images/Barang F2.png", jumlah: 1 },
+      { nama: "Sofa Vokasi", kode: "SF_01", gambar: "/images/Barang F2.png", jumlah: 1, statusPengembalian: "dipinjam" },
+      { nama: "Proyektor", kode: "PK_01", gambar: "/images/Barang E1.png", jumlah: 1, statusPengembalian: "dipinjam" },
+      { nama: "Sofa Vokasi", kode: "SF_02", gambar: "/images/Barang F2.png", jumlah: 1, statusPengembalian: "dipinjam" },
     ],
   },
 
@@ -183,9 +185,9 @@ export const mockPeminjaman: Peminjaman[] = [
     waktuMulai: "13.00 - 17.00",
     waktuSelesai: "09.00 - 13.00",
     detailBarang: [
-      { nama: "Sofa Vokasi", kode: "SF_01", gambar: "/images/Barang F2.png", jumlah: 1 },
-      { nama: "Proyektor", kode: "PK_01", gambar: "/images/Barang E1.png", jumlah: 1 },
-      { nama: "Sofa Vokasi", kode: "SF_02", gambar: "/images/Barang F2.png", jumlah: 1 },
+      { nama: "Sofa Vokasi", kode: "SF_01", gambar: "/images/Barang F2.png", jumlah: 1, statusPengembalian: "dipinjam" },
+      { nama: "Proyektor", kode: "PK_01", gambar: "/images/Barang E1.png", jumlah: 1, statusPengembalian: "dipinjam" },
+      { nama: "Sofa Vokasi", kode: "SF_02", gambar: "/images/Barang F2.png", jumlah: 1, statusPengembalian: "dikembalikan" },
     ],
   },
 ];

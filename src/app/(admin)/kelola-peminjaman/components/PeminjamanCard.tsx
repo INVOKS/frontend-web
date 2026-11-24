@@ -5,15 +5,18 @@ import DetailBarang from "./DetailBarang";
 
 type Props = {
   data: Peminjaman;
+  onClick?: () => void;
 };
 
-export default function PeminjamanCard({ data }: Props) {
+export default function PeminjamanCard({ data, onClick }: Props) {
   const isSelesai = data.status === "selesai";
+  const isBarang = data.jenis === "barang";
 
   return (
     <article
-      className={`rounded-lg overflow-hidden shadow-sm border border-gray-200 flex flex-col ${
-        isSelesai ? "bg-white" : "bg-white"
+      onClick={isBarang ? onClick : undefined}
+      className={`rounded-lg overflow-hidden shadow-sm border border-gray-200 flex flex-col bg-white transition-all duration-150 ${
+        isBarang ? "cursor-pointer hover:shadow-md hover:border-gray-300" : ""
       }`}
     >
       {/* ── Header nama ─────────────────────────────────────────── */}
@@ -71,7 +74,9 @@ export default function PeminjamanCard({ data }: Props) {
 
         {/* Detail section */}
         {data.detailRuangan && <DetailRuangan data={data.detailRuangan} />}
-        {data.detailBarang && <DetailBarang items={data.detailBarang} />}
+        {data.detailBarang && (
+          <DetailBarang items={data.detailBarang} statusCard={data.status} />
+        )}
       </div>
     </article>
   );
