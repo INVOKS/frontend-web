@@ -1,29 +1,8 @@
-export interface AuthUser {
-  id: number;
-  namaLengkap: string;
-  email: string;
-  role: "user" | "admin";
-  gender?: string | null;
-  tanggalLahir?: string | null;
-  jurusan?: string | null;
-  jenisPengguna?: string | null;
-  nimNidn?: string | null;
-  noTelp?: string | null;
-  foto?: string | null;
-  gedungId?: number | null;
-  createdAt?: string;
-  updatedAt?: string;
-}
+// AuthUser & AuthResponse diimport dari @/types/auth agar tidak ada duplikasi definisi
+import { AuthUser, AuthResponse } from "@/types/auth";
 
-export interface AuthResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    token?: string;
-    user?: AuthUser;
-  };
-  errors?: Record<string, string>;
-}
+// Re-export agar file lain yang sudah import dari @/lib/auth tetap bisa berjalan
+export type { AuthUser, AuthResponse };
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";

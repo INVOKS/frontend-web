@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { AuthUser } from "@/types/auth";
 import {
-  AuthUser,
   getStoredToken,
   getStoredUser,
   clearSession,
